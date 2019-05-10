@@ -1,33 +1,60 @@
-# java-safezoos
+# java-zoos
 
-* Implement OAuth2 security with different security roles
-* Implement Many-to-Many and One-to-Many relations with auditing fields
-
+A student that completes this project shows that they can:
+* Use Custom Queries usng Spring-Data
+* Connect to PostgreSQL Using Spring-Data
+* Implement Many-to-many and One-to-many relations
 
 ## Introduction
 
-We will continue working on our zoo application, adding security to our zoos.
+This is a basic database scheme with zoos, phone number and animals at the zoo.
 
 ## Instructions
-Using your java-zoos as a starting point (https://github.com/LambdaSchool/java-zoos.git), add OAuth2 security to the application. 
 
-* ROLE ADMIN should be allowed to access /admin /animals /zoos
+Create a REST API server to store and read data from a PostgreSQL database. A suggestion - work in H2 first, get everything working and then covert to PostgreSQL. The table layouts should be
 
-* ROLE ZOODATA should be allowed to access /zoos
+* Zoo
+  * zooid - long primary key
+  * zooname - String
 
-* ROLE ANIMALDATA should be allowed to access /animals
-
-* ROLE MGR (manager) should be allowed access /actuator /animals /zoos.
-
-* Everyone (authenticated or not) should be allowd to access the swagger ui!
-
-Note: The included seeddata.java class is meant to be used as a guide on how to set up your seeddata class. It is NOT meant to be used as is! 
-
-* As a stretch goal
-  * add end point /users/add to add a new user
-  * add end point /users/delete/{id} to delete a user based off of id
-  * add end point /users/viewall to show all the users
-  * add end point /users/view/{id} to show a user based off of if
+* Telephone
+  * phoneid - long primary key
+  * phonetype - String
+  * phonenumber - String
+  * zooid - foreign key
   
-  * give /ADMIN access to /users
-  
+There is a one to many relationship between zoos and telephones. One zoo can have multiple phone numbers but each phone number can only belong to one zoo.
+
+Use the file data.sql to seed your database.
+
+* Animal
+  * animalid - long primary key
+  * animaltype - String
+
+There is a many to many relationship between zoos and animals. A zoo may have many animal types and an animal type may be at many zoos.
+
+Expose the following end points
+
+* GET /zoos/zoos - returns all zoos with their phone numbers and animals
+* GET /zoos/{name} - return the zoo with this name with its phone numbers and animals
+
+* GET /animals/animals - returns all animals with their zoos
+* GET /animals/{name} - return the animal with a list of zoos where they can be found
+
+* GET /animals/count -  that returns a JSON object list listing the animals and a count of how many zoos where they can be found. Use a custom query for this.
+
+For the PUT and POST you can assume you are sent all the data with the appropriate ids included
+
+* PUT /admin/zoos/{id} - update the zoo referenced by the id number with the provided information
+
+* POST /admin/zoos - add the zoo
+
+* DELETE /admin/zoos/{id} - delete the zoo, associated phone numbers, and zoo animals combination associated with this zoo id
+
+### Stretch Goals
+
+* Expose the end point DELETE /admin/zoos/{zooid}/animals/{animalid} - delete the zoo animal combination based off of ids. 
+  * Hint: @PathVariable("zooid", long zooid), @PathVariable("animalid") long animalid
+* Expose the end point POST /admin/zoos/{zooid}/animals/{animalid} - adds the zoo animal combination based off of ids. 
+  * Hint: @PathVariable("zooid", long zooid), @PathVariable("animalid") long animalid
+* Log to the console each time a record in the database is changed.
